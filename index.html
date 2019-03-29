@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>MQTT</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"
+        type="text/javascript"></script>
+</head>
+
+<body>
+    <script>
+        //สร้างการเชื่อมต่อ
+        client = new Paho.MQTT.Client("192.168.1.6", 10149, "clientId");
+
+        //ตั้งค่าฟังก์ชันที่เรียก
+        client.onConnectionLost = onConnectionLost;
+        client.onMessageArrived = onMessageArrived;
+
+        // เชื่อมต่อกับระบบ
+        client.connect({
+            onSuccess: onConnect,
+            userName: "test",
+            password: "123456"
+        });
+
+        // ฟังก์ชันที่มีการเชื่อมต่อ
+        function onConnect() {
+            console.log("onConnect");
+            client.subscribe("mqtt");
+            message = new Paho.MQTT.Message("Hello");
+            message.destinationName = "mqtt";
+            client.send(message);
+        }
+
+        // ฟังก์ชันที่หยุกการเชื่อมต่อ
+        function onConnectionLost(responseObject) {
+            if (responseObject.errorCode !== 0) {
+                console.log("onConnectionLost:" + responseObject.errorMessage);
+            }
+        }
+
+        // ฟังก์ชันที่รอรับข้อความ
+        function onMessageArrived(message) {
+            console.log("onMessageArrived:" + message.payloadString);
+        }
+    </script>
+</body>
+
+</html>
